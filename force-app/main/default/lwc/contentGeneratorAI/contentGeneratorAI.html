@@ -28,12 +28,12 @@
             </div>
         </div>
 
-        <template if:true={result}>
+        <!-- <template if:true={result}>
             <div class="slds-p-horizontal_medium">
                 <h2>Generated Content</h2>
                 <div class="html-content" lwc:dom="manual" data-id="content-container"></div>
             </div>
-        </template>
+        </template> -->
     </lightning-card>
 
     <template if:true={isModalOpen}>
@@ -47,12 +47,17 @@
                     <span class="slds-assistive-text">Cancel and close</span>
                 </button>
                 <div class="slds-modal__header">
-                    <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">Modal header</h1>
+                    <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">Preview Content</h1>
                 </div>
                 <div class="slds-modal__content slds-p-around_medium" data-id="content-container">
                     <lightning-tabset>
-                        <lightning-tab label="Content">
+                        <lightning-tab label={selectedType}>
                             <div class="html-content" lwc:dom="manual" data-id="content-container-1"></div>
+                        <template if:false={resultLoaded}>
+                            <div class="loader-holder">
+                                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                            </div>
+                        </template>
                         </lightning-tab>
                     </lightning-tabset>
                 </div>

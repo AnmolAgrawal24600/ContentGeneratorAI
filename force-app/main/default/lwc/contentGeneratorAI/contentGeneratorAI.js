@@ -15,6 +15,7 @@ export default class ContentGeneratorAI extends LightningElement {
     @track result;
     @track isModalOpen = false;
     @track selectedType = 'Pitch Document';
+    @track resultLoaded = false;
 
     documentTypes = [
         { label: 'Pitch Document', value: 'Pitch Document' },
@@ -46,13 +47,13 @@ export default class ContentGeneratorAI extends LightningElement {
     }
 
     handleButtonClick() {
+        this.resultLoaded = false;
         this.isModalOpen = true;
         this.generateContent();
     }
 
     handleTypeChange(event) {
         this.selectedType = event.detail.value;
-        this.generateContent();
     }
 
     generateContent() {
@@ -77,6 +78,7 @@ export default class ContentGeneratorAI extends LightningElement {
         generateEmail({ promptTextorId: promptText })
             .then(result => {
                 this.result = result;
+                this.resultLoaded = true;
                 this.renderHTML();
             })
             .catch(error => {
@@ -85,9 +87,11 @@ export default class ContentGeneratorAI extends LightningElement {
     }
 
     renderHTML() {
+        if (this.resultLoaded) {
         const contentContainer = this.template.querySelector('[data-id="content-container-1"]');
         if (contentContainer) {
             contentContainer.innerHTML = this.result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
         }
     }
 
