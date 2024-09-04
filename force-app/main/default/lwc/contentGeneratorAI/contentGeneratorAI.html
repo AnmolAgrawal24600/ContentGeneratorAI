@@ -1,0 +1,15 @@
+<template>
+    <lightning-card title="Generate Documents" icon-name="doctype:ai">
+        <div class="slds-p-horizontal_medium">
+            <lightning-textarea name="myText" value={prompt} onchange={handleNameChange}
+                placeholder="Provide more context for generating response" label="Additional Information (optional)">
+            </lightning-textarea>
+            <div class="button-container slds-m-vertical_small">
+                <lightning-button label="Generate" onclick={handleButtonClick}></lightning-button>
+            </div>
+            <p>Result: {result}</p>
+            <p>{leadName}</p>
+            <p>hello hello testing</p>
+        </div>
+    </lightning-card>
+</template>
