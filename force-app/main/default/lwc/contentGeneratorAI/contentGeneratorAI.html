@@ -1,15 +1,41 @@
 <template>
     <lightning-card class="container" title="Generate Documents" icon-name="doctype:ai">
         <div class="slds-p-horizontal_medium">
-            <lightning-textarea name="myText" value={prompt} onchange={handleNameChange}
-                placeholder="Provide more context for generating response" label="Additional Information (optional)">
+            <lightning-textarea 
+                name="myText" 
+                value={prompt} 
+                onchange={handleNameChange}
+                placeholder="Provide more context for generating response" 
+                label="Additional Information (optional)">
             </lightning-textarea>
+
+            <div class="slds-m-top_medium">
+                <lightning-combobox 
+                    name="contentType" 
+                    label="Select Document Type" 
+                    value={selectedType}
+                    placeholder="Select a document type"
+                    options={documentTypes}
+                    onchange={handleTypeChange}>
+                </lightning-combobox>
+            </div>
+
             <div class="button-container slds-m-vertical_small">
-                <lightning-button label="Generate" onclick={handleButtonClick}></lightning-button>
+                <lightning-button 
+                    label="Generate" 
+                    onclick={handleButtonClick}>
+                </lightning-button>
             </div>
         </div>
-        <div>{result}</div>
+
+        <template if:true={result}>
+            <div class="slds-p-horizontal_medium">
+                <h2>Generated Content</h2>
+                <div class="html-content" lwc:dom="manual" data-id="content-container"></div>
+            </div>
+        </template>
     </lightning-card>
+
     <template if:true={isModalOpen}>
         <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
             class="slds-modal slds-fade-in-open slds-modal_fullpage">
@@ -25,17 +51,8 @@
                 </div>
                 <div class="slds-modal__content slds-p-around_medium" data-id="content-container">
                     <lightning-tabset>
-                        <lightning-tab label="Pitch Document">
-                           <div class="html-content" lwc:dom="manual" data-id="content-container-1"></div>
-                        </lightning-tab>
-                        <lightning-tab label="Social Media Marketing">
-                            Two Content !
-                        </lightning-tab>
-                        <lightning-tab label="Email Marketing">
-                            Three Content !
-                        </lightning-tab>
-                        <lightning-tab label="Essential Document">
-                            Four Content !
+                        <lightning-tab label="Content">
+                            <div class="html-content" lwc:dom="manual" data-id="content-container-1"></div>
                         </lightning-tab>
                     </lightning-tabset>
                 </div>

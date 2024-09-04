@@ -1,29 +1,27 @@
 import { LightningElement, track, api, wire } from 'lwc';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
-import { loadScript } from 'lightning/platformResourceLoader';
-
+import generateEmail from '@salesforce/apex/EinsteinLLMService.generateEmail';
 import LEAD_NAME_FIELD from '@salesforce/schema/Lead.Name';
 import LEAD_COMPANY_FIELD from '@salesforce/schema/Lead.Company';
 import LEAD_DESCRIPTION_FIELD from '@salesforce/schema/Lead.Description';
 import LEAD_INDUSTRY_FIELD from '@salesforce/schema/Lead.Industry';
 import LEAD_STATUS_FIELD from '@salesforce/schema/Lead.Status';
 import LEAD_REVENUE_FIELD from '@salesforce/schema/Lead.AnnualRevenue';
-import generateEmail from '@salesforce/apex/EinsteinLLMService.generateEmail';
 
 export default class ContentGeneratorAI extends LightningElement {
 
-    jsPdfInitialized = false;
-
     @api recordId;
     @track prompt = 'Write apex sample that sends an email to a customer';
-
-    @track input_prompt;
-
     @track result;
-
-    @track test_prompt;
-
     @track isModalOpen = false;
+    @track selectedType = 'Pitch Document';
+
+    documentTypes = [
+        { label: 'Pitch Document', value: 'Pitch Document' },
+        { label: 'Social Media Marketing', value: 'Social Media Marketing' },
+        { label: 'Email Marketing', value: 'Email Marketing' },
+        { label: 'Essential Document', value: 'Essential Document' }
+    ];
 
     @wire(getRecord, { recordId: '$recordId', fields: [LEAD_NAME_FIELD, LEAD_COMPANY_FIELD, LEAD_DESCRIPTION_FIELD, LEAD_INDUSTRY_FIELD, LEAD_STATUS_FIELD, LEAD_REVENUE_FIELD] })
     lead;
@@ -47,37 +45,36 @@ export default class ContentGeneratorAI extends LightningElement {
         return getFieldValue(this.lead.data, LEAD_REVENUE_FIELD);
     }
 
-    closeModal() {
-        this.isModalOpen = false; // Close the modal
-    }
-
-    saveData() {
-        // Handle data save or further actions
-        console.log('Data saved');
-        this.closeModal(); // Close the modal after saving data
-    }
-
-    // generatePDF() {
-    //     if (this.jsPDFInitialized) {
-    //         console.log('inside');
-    //         const { jsPDF } = window.jspdf;
-    //         console.log('inside 2');
-    //         const doc = new jsPDF();
-    //         console.log('inside 3');
-    //         doc.text('Hello world!', 10, 10);
-    //         console.log('doc', doc);
-    //         doc.save('sample.pdf');
-    //     }
-    // }
-
     handleButtonClick() {
-
         this.isModalOpen = true;
-                //this.input_prompt = `I am a marketing executive in HDFC bank and I would like to send a personalised content for the VP of potential lead at ${this.leadCompany} based on the HDFC Bank's interest in launching a co-branded health and wellness program aimed at their premium customers, including special financing options for medical expenses, discounts on medicines, and health check-up packages., ${this.leadCompany} with its extensive range of essential and specialty medications, along with a strong reputation in the ${this.leadIndustry} industry, could collaborate with HDFC Bank to offer exclusive discounts or benefits on their products through this program. The deal could include a marketing collaboration where their products are promoted through HDFC Bank's customer channels—such as mobile banking apps, websites, and customer newsletters—thereby expanding their brand visibility and customer reach`;
+        this.generateContent();
+    }
 
-        //this.test_prompt = `I am a salesperson and trying to gather information about a company named ${this.leadCompany} which is my potential lead. Please provide me details like their products, services, their growth, some pain points and some of the industry details they are involved in.`
+    handleTypeChange(event) {
+        this.selectedType = event.detail.value;
+        this.generateContent();
+    }
 
-        generateEmail({ promptTextorId: this.prompt })
+    generateContent() {
+        let promptText = '';
+        switch(this.selectedType) {
+            case 'Pitch Document':
+                promptText = `**Objective:** Craft a pitch document for HDFC Bank to present a new co-branded credit card to Flipkart, leveraging Salesforce's tools to enhance the partnership and highlight benefits over the Axis Flipkart credit card. Add signature and salutation as well. Include the system date where current date is needed`;
+                break;
+            case 'Social Media Marketing':
+                promptText = `**Objective:** Develop social media content for HDFC Bank's new credit card in collaboration with Flipkart. Utilize Salesforce to create engaging and compelling posts that highlight benefits over the Axis Flipkart credit card.`;
+                break;
+            case 'Email Marketing':
+                promptText = `**Objective:** Create a marketing campaign document for HDFC Bank's new Flipkart credit card, using Salesforce to enhance customer engagement and highlight advantages over the Axis Flipkart credit card for social media promotional content.`;
+                break;
+            case 'Essential Document':
+                promptText = `**Objective:** Generate essential documentation for the HDFC Bank and Flipkart credit card partnership, including terms, conditions, and benefits. Ensure clarity and comprehensiveness in the documentation.`;
+                break;
+            default:
+                promptText = `**Objective:** Generate content for the selected type.`;
+        }
+
+        generateEmail({ promptTextorId: promptText })
             .then(result => {
                 this.result = result;
                 this.renderHTML();
@@ -87,19 +84,14 @@ export default class ContentGeneratorAI extends LightningElement {
             });
     }
 
-    handleNameChange(event) {
-        this.prompt = event.target.value;
-    }
-
-    handleClose() {
-        this.isModalOpen = false;
-    }
-
     renderHTML() {
         const contentContainer = this.template.querySelector('[data-id="content-container-1"]');
         if (contentContainer) {
             contentContainer.innerHTML = this.result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         }
     }
-    
+
+    handleClose() {
+        this.isModalOpen = false;
+    }
 }
