@@ -5,7 +5,7 @@ public with sharing class EinsteinLLMService {
         ConnectApi.EinsteinLlmGenerationsInput generationsInput = new ConnectApi.EinsteinLlmGenerationsInput();
         generationsInput.promptTextorId = promptTextorId;
         generationsInput.additionalConfig = new ConnectApi.EinsteinLlmAdditionalConfigInput();
-        generationsInput.additionalConfig.maxTokens = 512;
+        generationsInput.additionalConfig.maxTokens = 2000;
         generationsInput.additionalConfig.applicationName = 'CampaignApp';
 
         // Call the service
