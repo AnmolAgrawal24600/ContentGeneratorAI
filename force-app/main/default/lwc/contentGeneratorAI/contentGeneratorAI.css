@@ -3,14 +3,19 @@
     justify-content: end;
 }
 .slds-modal__container {
+
     max-width: 50rem;
+}
+
+.slds-modal__content {
+    height: 80vh;
 }
 
 .slds-modal {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 100;
+    z-index: 1000;
 }
 
 .slds-backdrop {
@@ -21,5 +26,5 @@
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 50;
+    z-index: 900;
 }
