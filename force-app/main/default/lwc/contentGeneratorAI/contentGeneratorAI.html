@@ -1,5 +1,5 @@
 <template>
-    <lightning-card class="container" title="Generate Documents" icon-name="doctype:ai">
+    <lightning-card class="custom-card" title="Generate Documents" icon-name="doctype:ai">
         <div class="slds-p-horizontal_medium">
             <lightning-textarea 
                 name="myText" 
@@ -8,6 +8,11 @@
                 placeholder="Provide more context for generating response" 
                 label="Additional Information (optional)">
             </lightning-textarea>
+            
+            <div class="slds-m-top_medium">
+                <lightning-input data-id="toggle1" type="toggle" label="Email Context" checked={isEmailToggled}
+                    message-toggle-active="" message-toggle-inactive="" onchange={handleToggleChange}></lightning-input>
+            </div>
 
             <div class="slds-m-top_medium">
                 <lightning-combobox 
@@ -23,17 +28,11 @@
             <div class="button-container slds-m-vertical_small">
                 <lightning-button 
                     label="Generate" 
-                    onclick={handleButtonClick}>
+                    onclick={handleButtonClick}
+                    >
                 </lightning-button>
             </div>
         </div>
-
-        <!-- <template if:true={result}>
-            <div class="slds-p-horizontal_medium">
-                <h2>Generated Content</h2>
-                <div class="html-content" lwc:dom="manual" data-id="content-container"></div>
-            </div>
-        </template> -->
     </lightning-card>
 
     <template if:true={isModalOpen}>
@@ -49,7 +48,8 @@
                 <div class="slds-modal__header">
                     <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">Preview Content</h1>
                 </div>
-                <div class="slds-modal__content slds-p-around_medium" data-id="content-container">
+                <div class="slds-modal__content slds-p-vertical_medium slds-p-horizontal_x-large" data-id="content-container">
+                    <div class="content-container slds-p-around_large">
                     <lightning-tabset>
                         <lightning-tab label={selectedType}>
                             <div class="html-content" lwc:dom="manual" data-id="content-container-1"></div>
@@ -61,9 +61,10 @@
                         </lightning-tab>
                     </lightning-tabset>
                 </div>
+                </div>
                 <div class="slds-modal__footer">
                     <button class="slds-button slds-button_neutral" aria-label="Cancel and close" onclick={handleClose}>Cancel</button>
-                    <button class="slds-button slds-button_brand">Save</button>
+                    <button class="slds-button slds-button_brand" onclick={generatePDF}>Download</button>
                 </div>
             </div>
         </section>

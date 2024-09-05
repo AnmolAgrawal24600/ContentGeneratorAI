@@ -55,3 +55,29 @@
     .loader-holder {
         height: 60vh;
 }
+.body-container {
+    padding-left: 50px;
+    padding-right: 50px;
+    background-color: gray;
+}
+
+.body-content {
+    background-color: #ffff;
+}
+
+.content-container {
+    border: 2px solid #333;
+}
+
+.custom-card {
+    --slds-card-header-padding-top: 24px;
+}
+h1 {
+    font-size: 30px;
+    font-weight: 700;
+}
+
+h2 {
+    font-size: 20px;
+    font-weight: 700;
+}

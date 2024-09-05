@@ -24,4 +24,12 @@ public with sharing class EinsteinLLMService {
             return 'No response received.';
         }
     }
+
+    @AuraEnabled(cacheable=true)
+    public static List<EmailMessage> getEmailsByRecipient(String recipientEmail) {
+        return [SELECT TextBody, MessageDate
+                FROM EmailMessage
+                WHERE ToAddress = :recipientEmail 
+                ORDER BY MessageDate DESC];
+    }
 }
