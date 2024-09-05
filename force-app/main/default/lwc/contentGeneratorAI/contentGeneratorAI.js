@@ -16,6 +16,7 @@ export default class ContentGeneratorAI extends LightningElement {
 
     @api recordId;
     @track prompt = '';
+    @track suggestion = '';
     @track result = null;
     @track isModalOpen = false;
     @track selectedType = 'Proposal Document';
@@ -62,6 +63,11 @@ export default class ContentGeneratorAI extends LightningElement {
         this.generateContent();
     }
 
+    handleRegenerateClick() {
+        this.resultLoaded = false;
+        this.regenerateContent();
+    }
+
     handleTypeChange(event) {
         this.selectedType = event.detail.value;
     }
@@ -81,6 +87,22 @@ export default class ContentGeneratorAI extends LightningElement {
 
         // Format date as "12 Jan 2021"
         return `${day} ${monthNames[monthIndex]} ${year}`;
+    }
+
+    regenerateContent() {
+        let promptText = `I have a document in html form given by ${this.result}. Please modify the document as per additional information given after this line.${this.suggestion}.Modify the document as minimum as possible. Also, represent the output in same html format with atleast 3 levels of heading.`;
+        this.result = null;
+        this.suggestion = '';
+
+        generateEmail({ promptTextorId: promptText })
+            .then(result => {
+                this.result = result;
+                this.resultLoaded = true;
+                this.renderHTML();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
     }
 
     generateContent() {
@@ -107,23 +129,10 @@ export default class ContentGeneratorAI extends LightningElement {
             .then(result => {
                 this.result = result;
                 this.resultLoaded = true;
-                this.renderHTML();
             })
             .catch(error => {
                 console.error('Error:', error);
             });
-    }
-
-    renderHTML() {
-        if (this.resultLoaded) {
-            //const contentContainer = this.template.querySelector('[data-id="content-container-1"]');
-            // if (contentContainer) {
-            //     contentContainer.innerHTML = this.result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/^## (.+)$/gm, '<h2>$1</h2>').replace(/^# (.+)$/gm, '<h1>$1</h1>');
-            //     console.log(contentContainer.innerHTML);
-            // }
-            // this.result = this.result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/^## (.+)$/gm, '<h2>$1</h2>').replace(/^# (.+)$/gm, '<h1>$1</h1>');
-
-        }
     }
 
     handleClose() {
@@ -134,6 +143,10 @@ export default class ContentGeneratorAI extends LightningElement {
 
     handleNameChange(event) {
         this.prompt = event.target.value;
+    }
+
+    handleSuggestionChange(event) {
+        this.suggestion = event.target.value;
     }
 
     handleToggleChange() {

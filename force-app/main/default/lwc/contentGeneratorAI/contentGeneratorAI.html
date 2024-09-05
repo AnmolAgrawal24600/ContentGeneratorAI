@@ -49,15 +49,30 @@
                 </div>
                 <div class="slds-modal__content slds-p-vertical_medium slds-p-horizontal_x-large" data-id="content-container">
                     <div class="content-container">
-                        <template if:true={resultLoaded}>
-                            <lightning-input-rich-text class="text-editor" label="Edit your text" value={result} onchange={handleTextChange}
-                                data-id="richTextEditor"></lightning-input-rich-text>
-                        </template>
-                        <template if:false={resultLoaded}>
-                            <div class="loader-holder">
-                                <lightning-spinner alternative-text="Loading" size="medium" style="height: 10vh; margin: auto;"></lightning-spinner>
-                            </div>
-                        </template>
+                    <div class="box-container">
+                        <div class="box box-2">
+                                    <template if:true={resultLoaded}>
+                                        <lightning-input-rich-text class="text-editor" label="Edit your text" value={result} onchange={handleTextChange}
+                                data-id="richTextEditor"></lightning-input-rich-text> </template>
+                                <template if:false={resultLoaded}>
+                                    <div class="loader-holder">
+                                        <lightning-spinner alternative-text="Loading" size="medium" style="height: 10vh; margin: auto;"></lightning-spinner>
+                                    </div>
+                                </template>
+                                </div>
+                                <div class="box box-1">
+                                    <template if:true={resultLoaded}>
+                                        <lightning-textarea class="textAreaBody" name="modalText" value={suggestion} onchange={handleSuggestionChange}
+                                            placeholder="Let Einstein make your response better.." label="Add suggestions">
+                                        </lightning-textarea>
+                                        <div class="button-container slds-m-vertical_small">
+                                            <lightning-button label="Regenerate response" onclick={handleRegenerateClick}>
+                                            </lightning-button>
+                                        </div>
+                                    </template>
+                                </div>
+                                
+                                </div>
                 </div>
                 </div>
                 <div class="slds-modal__footer">
