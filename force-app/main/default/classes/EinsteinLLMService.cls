@@ -27,7 +27,7 @@ public with sharing class EinsteinLLMService {
 
     @AuraEnabled(cacheable=true)
     public static List<EmailMessage> getEmailsByRecipient(String recipientEmail) {
-        return [SELECT TextBody, MessageDate
+        return [SELECT TextBody
                 FROM EmailMessage
                 WHERE ToAddress = :recipientEmail 
                 ORDER BY MessageDate DESC];

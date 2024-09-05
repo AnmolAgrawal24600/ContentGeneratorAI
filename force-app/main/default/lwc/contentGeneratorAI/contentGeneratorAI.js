@@ -10,25 +10,24 @@ import LEAD_STATUS_FIELD from '@salesforce/schema/Lead.Status';
 import LEAD_REVENUE_FIELD from '@salesforce/schema/Lead.AnnualRevenue';
 import LEAD_EMAIL_FIELD from '@salesforce/schema/Lead.Email';
 import jsPDF from '@salesforce/resourceUrl/jsPDF';
-import html2canvas from '@salesforce/resourceUrl/html2canvas';
 import { loadScript } from 'lightning/platformResourceLoader';
 
 export default class ContentGeneratorAI extends LightningElement {
 
     @api recordId;
     @track prompt = '';
-    @track result;
+    @track result = null;
     @track isModalOpen = false;
-    @track selectedType = 'Pitch Document';
+    @track selectedType = 'Proposal Document';
     @track resultLoaded = false;
     @track isEmailToggled = false;
     @track emails = [];
     html2canvasvar
     documentTypes = [
-        { label: 'Pitch Document', value: 'Pitch Document' },
-        { label: 'Social Media Marketing', value: 'Social Media Marketing' },
-        { label: 'Email Marketing', value: 'Email Marketing' },
-        { label: 'Essential Document', value: 'Essential Document' }
+        { label: 'Proposal Document', value: 'Proposal Document' },
+        // { label: 'Social Media Marketing', value: 'Social Media Marketing' },
+        // { label: 'Email Marketing', value: 'Email Marketing' },
+        { label: 'Additional Document', value: 'Additional Document' }
     ];
 
     @wire(getRecord, { recordId: '$recordId', fields: [LEAD_NAME_FIELD, LEAD_COMPANY_FIELD, LEAD_DESCRIPTION_FIELD, LEAD_INDUSTRY_FIELD, LEAD_STATUS_FIELD, LEAD_REVENUE_FIELD, LEAD_EMAIL_FIELD] })
@@ -58,6 +57,7 @@ export default class ContentGeneratorAI extends LightningElement {
 
     handleButtonClick() {
         this.resultLoaded = false;
+        this.result = null;
         this.isModalOpen = true;
         this.generateContent();
     }
@@ -85,11 +85,10 @@ export default class ContentGeneratorAI extends LightningElement {
 
     generateContent() {
         let promptText = '';
-
         console.log('date', new Date().toLocaleDateString());
         switch(this.selectedType) {
-            case 'Pitch Document':
-                promptText = `**Objective:** Craft a pitch document for HDFC Bank to present a new co-branded credit card to Flipkart, leveraging Salesforce's tools to enhance the partnership and highlight benefits over the Axis Flipkart credit card. ${this.prompt}. Add signature and salutation as well. Name of the person from Flipkart is ${this.leadName}. Include this date instead of current date ${this.formattedDate()} if date is needed. Also present the output in a markdown format.`;
+            case 'Proposal Document':
+                promptText = `**Objective:** Craft a detailed proposal document in about 1000 words for HDFC Bank to present a new co-branded credit card to Flipkart, leveraging Salesforce's tools to enhance the partnership and highlight benefits over the Axis Flipkart credit card. ${this.prompt}. Add signature and salutation as well. Name of the person from Flipkart is ${this.leadName}. Include this date instead of current date ${this.formattedDate()} if date is needed. Also represent the output in html format with proper formatting with atleast 3 levels of headings.`;
                 break;
             case 'Social Media Marketing':
                 promptText = `**Objective:** Develop social media content for HDFC Bank's new credit card in collaboration with Flipkart.${this.prompt}. Utilize Salesforce to create engaging and compelling posts that highlight benefits over the Axis Flipkart credit card. Also present the output in a markdown format.`;
@@ -97,8 +96,8 @@ export default class ContentGeneratorAI extends LightningElement {
             case 'Email Marketing':
                 promptText = `**Objective:** Create a marketing campaign document for HDFC Bank's new Flipkart credit card, using Salesforce to enhance customer engagement and highlight advantages over the Axis Flipkart credit card for social media promotional content.${this.prompt}.Include this date instead of current date ${this.formattedDate()} if date is needed. Also present the output in a markdown format.`;
                 break;
-            case 'Essential Document':
-                promptText = `**Objective:** Generate essential documentation for the HDFC Bank and Flipkart credit card partnership, including terms, conditions, and benefits.${this.prompt}. Ensure clarity and comprehensiveness in the documentation.Include this date instead of current date ${this.formattedDate()} if date is needed. Also present the output in a markdown format.`;
+            case 'Additional Document':
+                promptText = `**Objective:** Generate essential documentation for the HDFC Bank and Flipkart credit card partnership, including terms, conditions, and benefits in about 1000 words.${this.prompt}. Ensure clarity and comprehensiveness in the documentation.Include this date instead of current date ${this.formattedDate()} if date is needed.Also represent the output in html format with proper formatting with atleast 3 levels of headings.`;
                 break;
             default:
                 promptText = `**Objective:** Generate content for the selected type.`;
@@ -117,15 +116,19 @@ export default class ContentGeneratorAI extends LightningElement {
 
     renderHTML() {
         if (this.resultLoaded) {
-        const contentContainer = this.template.querySelector('[data-id="content-container-1"]');
-        if (contentContainer) {
-            contentContainer.innerHTML = this.result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/^## (.+)$/gm, '<h2>$1</h2>').replace(/^# (.+)$/gm, '<h1>$1</h1>');
-            console.log(contentContainer.innerHTML);
-        }
+            //const contentContainer = this.template.querySelector('[data-id="content-container-1"]');
+            // if (contentContainer) {
+            //     contentContainer.innerHTML = this.result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/^## (.+)$/gm, '<h2>$1</h2>').replace(/^# (.+)$/gm, '<h1>$1</h1>');
+            //     console.log(contentContainer.innerHTML);
+            // }
+            // this.result = this.result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/^## (.+)$/gm, '<h2>$1</h2>').replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
         }
     }
 
     handleClose() {
+        this.result = null;
+        this.resultLoaded = false;
         this.isModalOpen = false;
     }
 
@@ -140,6 +143,7 @@ export default class ContentGeneratorAI extends LightningElement {
     }
 
     fetchEmails() {
+        if (this.isEmailToggled) {
         getEmailsByRecipient({ recipientEmail: this.leadEmail })
             .then(result => {
                 this.emails = result;
@@ -148,6 +152,7 @@ export default class ContentGeneratorAI extends LightningElement {
             .catch(error => {
                 console.error('Error fetching emails:', error);
             });
+        }
     }
 
     jsPdfInitialized = false;
@@ -193,11 +198,44 @@ export default class ContentGeneratorAI extends LightningElement {
             // doc.setTextColor(0, 0, 255); // Blue color
             doc.text('hello world', 100, 100);
             // // Save the PDF
-            doc.save('document.pdf');
+            doc.save('flipkart_pitch_doc.pdf');
         }
         catch (error) {
             alert("Error " + error);
         }
+    }
+    copyToClipboard() {
+        const richTextEditor = this.template.querySelector('[data-id="richTextEditor"]');
+
+        if (richTextEditor) {
+            // Get the rich text content
+            const htmlContent = richTextEditor.value;
+
+            // Use the Clipboard API to copy HTML content
+            navigator.clipboard.write([new ClipboardItem({
+                'text/html': new Blob([htmlContent], { type: 'text/html' }),
+                'text/plain': new Blob([this.htmlToPlainText(htmlContent)], { type: 'text/plain' })
+            })]).then(() => {
+                alert('Content copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+    }
+    htmlToPlainText(html) {
+        // Convert HTML to plain text with basic formatting preserved
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+
+        // Extract formatted text
+        return tempDiv.innerText || tempDiv.textContent;
+    }
+    handleTextChange(event) {
+        this.result = event.detail.value;
+    }
+
+    handleShowText() {
+        alert(this.result);
     }
 
 }
